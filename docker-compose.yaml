@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  # Service untuk Database
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: wijdan123
+      POSTGRES_DB: testing
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Service untuk Aplikasi Express
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # PENTING: Host database di sini harus 'db' (nama service di atas), bukan 'localhost'
+      DATABASE_URL: "postgresql://postgres:wijdan123@db:5432/testing?schema=public"
+    volumes:
+      - .:/app # Petakan folder saat ini ke folder /app di container
+      - /app/node_modules # "Anonymous Volume" agar node_modules di container tidak tertimpa laptop
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
